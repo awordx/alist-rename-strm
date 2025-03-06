@@ -17,6 +17,7 @@ if __name__ == '__main__':
     time.sleep(1)
     logger.info(f'项目地址：https://github.com/awordx/alist-rename-strm')
     restart_update = os.getenv('restart_update', True)
+    restart_update = restart_update.lower() in ['true', '1', 't', 'y', 'yes']
     if restart_update:
         logger.info(f'程序正在启动中...')
         logger.info(f'程序启动完成')
