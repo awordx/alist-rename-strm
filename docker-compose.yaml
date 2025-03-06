@@ -1,0 +1,17 @@
+services:
+  alist-rename:
+    image: crpi-zutrieltt9z6q9p7.cn-shanghai.personal.cr.aliyuncs.com/awordx/palist-rename-strm:latest         # 使用的镜像名称
+    ports:
+      - "5050:5050"                    # 映射主机端口 5051 到容器端口 5050
+    restart: always                    # 设置容器总是自启
+    # 如果需要，您可以添加环境变量、卷、网络等配置
+    # environment:
+    #   - EXAMPLE_ENV_VAR=value
+    volumes:
+      - ./data:/usr/local/data
+      - ./config:/usr/local/config
+      - /media:/alist_strm #媒体库路径
+    environment:
+      - restart_update=True
+    # networks:
+    #   - my_network
