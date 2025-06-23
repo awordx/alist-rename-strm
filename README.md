@@ -87,7 +87,7 @@
 version: '3.5'
 services:
   alist-rename:
-    image: crpi-zutrieltt9z6q9p7.cn-shanghai.personal.cr.aliyuncs.com/awordx/alist-renmae-strm:latest
+    image: crpi-zutrieltt9z6q9p7.cn-shanghai.personal.cr.aliyuncs.com/awordx/open_alist_strm_rename:latest
     container_name: alist-rename
     ports:
       - "5050:5050"   # Web API 端口
