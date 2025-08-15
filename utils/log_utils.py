@@ -9,7 +9,7 @@
 #         def warning(s):
 #             print(f'| WARNING| {s}')
 from datetime import datetime
-
+config_path = 'config/config_test.ini'
 try:
     from loguru import logger
 except ImportError:

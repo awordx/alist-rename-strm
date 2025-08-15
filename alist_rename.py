@@ -17,7 +17,9 @@ from difflib import SequenceMatcher
 import asyncio
 import concurrent.futures
 from utils.chatapi import ai_rename
+from utils.chatapi import ai_rename_anime_movie
 from utils.file_auto_copy import auto_copy
+from utils.log_utils import config_path
 class AlistRename():
     def __init__(self, config ,mapping_file='name_mapping.json'):
         # self.folder_path = folder_path
@@ -441,21 +443,6 @@ class AlistRename():
         with open(last_data_path, 'w', encoding='utf-8') as file:
             json.dump(data, file, ensure_ascii=False, indent=4)  # 写入更新后的 JSON 数据
 
-    def notcheck_files_update(self, last_data_path, parent_folderpath):
-        series_names_modified_time = self.alist.is_file(parent_folderpath, modified_time=True)
-        series_names = os.path.basename(parent_folderpath)
-        named_series = (series_names, series_names_modified_time)
-        # 读取文件内容
-        with open(last_data_path, 'r', encoding='utf-8') as file:
-            lines = file.readlines()  # 读取所有行
-        # 过滤掉包含 series_names 的行
-        filtered_lines = [line for line in lines if series_names not in line]
-        # 写回文件，覆盖原文件
-        with open(last_data_path, 'w', encoding='utf-8') as file:
-            file.writelines(filtered_lines)  # 写入过滤后的行
-        with open(last_data_path, 'a', encoding='utf-8') as file:
-            # 将元组转换为字符串并写入文件
-            file.write(','.join(named_series) + '\n')  # 元组元素用逗号分隔
     def movie_files_update_old(self,last_data_path,movie_folder_path):
         self.alist.get_folder_files(os.path.split(movie_folder_path)[0],refresh=True)#刷新电影的父目录，获取修改后的最新时间
         movie_modified_time = self.alist.is_file(movie_folder_path, modified_time=True)
@@ -710,9 +697,17 @@ class AlistRename():
 
         if new_folders_dict['new_movie_files']:
             # logger.info(f'4.2发现新电影就🎇: {list(new_folders_dict["new_movie_files"])}')
-            for new_movie_path in new_folders_dict['new_movie_folders_with_path']:
+            for index, new_movie_path in enumerate(new_folders_dict['new_movie_folders_with_path']) :
                 if not self.alist.local_is_a_file(new_movie_path):
                     # self.alist.movie_rename(new_movie_path)
+                    if alist_rename.useai:
+                        new_path = ai_rename_anime_movie(new_movie_path)
+                        named_folder = os.path.basename(new_path)
+                        alist_rename.alist.rename_filename(new_movie_path, named_folder)
+                        alist_rename.alist.get_folder_files(os.path.dirname(new_path),refresh=True)
+                        new_movie_path = new_path
+                        new_folders_dict['new_movie_files'][index] = named_folder
+                        new_folders_dict['new_movie_folders_with_path'][index] = new_path
                     arrangement_and_rename_movies(alist_rename, moviepath=new_movie_path)
                 else:
                     create_single_movie_strm(alist_rename,new_movie_path)
@@ -907,7 +902,7 @@ def arrangement_and_rename_movies(alist_rename,moviepath):
 # 使用示例
 if __name__ == '__main__':
     # config = read_config('/volume1/docker/alist_rename/config.ini')#nas配置文件
-    config = read_config('config/config.ini')#windows配置文件
+    config = read_config(config_path)#windows配置文件
 
     alist_rename = AlistRename(config)
     # 创建解析器
@@ -951,10 +946,18 @@ if __name__ == '__main__':
     try:
         for index, folders_with_path in enumerate(folders_with_paths) :
             if folders_with_path:
-                for new_folder in folders_with_path:
+                for index2 ,new_folder in enumerate(folders_with_path):
                     # logger.info(f'✨检测到新文件:[{os.path.basename(new_folder)}]，开始重命名')
                     ###检测文件夹是否含有not_check,以及整理文件夹
                     # not_check = folder_arrangement_t(alist_rename,new_folder)
+                    if alist_rename.useai:
+                        new_path = ai_rename_anime_movie(new_folder)
+                        named_folder = os.path.basename(new_path)
+                        alist_rename.alist.rename_filename(new_folder, named_folder)
+                        alist_rename.alist.get_folder_files(os.path.dirname(new_path),refresh=True)
+                        new_folder = new_path
+                        new_folders_dict['new_anime_files'][index2] = named_folder
+                        new_folders_dict['new_anime_folders_with_path'][index2] = new_path
                     if alist_rename.is_use_asyncio:
                         logger.info(f'🔧使用异步操作进行文件夹整理')
                         not_check = loop.run_until_complete(folder_arrangement(alist_rename, new_folder))
@@ -963,7 +966,7 @@ if __name__ == '__main__':
                     if not_check:
                         logger.info(f'⚠️not_check:{new_folder}，不进行命名以及生成strm')
                         folders_with_path.remove(new_folder)
-                        # alist_rename.notcheck_files_update(last_data_path,new_folder)
+                        alist_rename.series_files_update(last_data_path=alist_rename.last_file_path, parent_folderpath=new_folder)
                         continue
                     ###检测文件夹是否含有not_check,以及整理文件夹
                     # logger.info(f'2.已取消文件名剔除操作')

@@ -139,6 +139,11 @@ class ALIST():
             return names
 
     def rename_filename(self,src_name_path,renamed_name):
+        """
+        :param src_name_path: 需要命名文件的绝对路径
+        :param renamed_name:  需要命名文件的新名字
+        :return: None
+        """
         url = self.rename_filename_url
         #alsit.rename_filename(ori_name_path='/115_15TB/动漫New/新建文件夹', renamed_name='renamed')
         payload = json.dumps({

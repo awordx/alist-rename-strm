@@ -4,6 +4,7 @@ from alist_rename import read_config
 from utils.folderwatcher_emby import AUTO_refreash
 from utils.log_utils import logger
 import sys
+from utils.log_utils import config_path
 import os
 
 if __name__ == '__main__':
@@ -14,7 +15,7 @@ if __name__ == '__main__':
   \__,_| |_| |_| |___/  \__|         |_|     \___| |_| |_|  \__,_| |_| |_| |_|  \___|         |___/  \__| |_|    |_| |_| |_|
                                                                                                                             '''
     print(art)
-    config = read_config('config/config.ini')  # windows配置文件
+    config = read_config(config_path)  # windows配置文件
     restart_update = eval(config['user_config']['restart_update'])
     time.sleep(1)
     logger.info(f'项目地址：https://github.com/awordx/alist-rename-strm')
