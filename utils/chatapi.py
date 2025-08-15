@@ -76,6 +76,7 @@ def ai_rename_anime_movie(series_name):
                         "是置信度，为浮点数格式"
                         "4.例如有一个夹杂广告的剧集为'梦幻天龙.2008.七龙珠第一季'，你就要返回['七龙珠',1]，当然这个置信度由你自己来决定"
                         "5.这是最重要的！！！你要再仔细检查几遍再发给我，确保你没有命名错误"
+                        "6.要遵循从简原则，没有必要为了命名而命名，除非你真的确定它里面夹杂广告，正确率最重要！！！"
           },
           {
              "role": "user",
@@ -83,7 +84,7 @@ def ai_rename_anime_movie(series_name):
           }
        ]
     })
-    config = read_config('config/config_test.ini')
+    config = read_config(config_path)
     chat_api = config['user_config']['chat_api']
     headers = {
        'Authorization': f'Bearer {chat_api}',
@@ -106,6 +107,7 @@ def ai_rename_anime_movie(series_name):
     return new_path
 if __name__ == '__main__':
     series_names_list =['海绵宝宝第1季 第15集_896x680_H265_23.15_124.39MB.mp4', '.海绵宝宝第1季 第9集_896x688_H265_22.34_121.35MB.mp4', '海绵宝宝第1季 第8集_896x680_H265_22.35_118.32MB.mp4', '海绵宝宝第1季 第7集_896x680_H265_22.35_119.96MB.mp4', '海绵宝宝第1季 第5集_896x680_H265_22.32_118.80MB.mp4', '.海绵宝宝第1季 第4集_896x672_H265_22.35_120.75MB.mp4', '.海绵宝宝第1季 第3集_896x672_H265_22.36_117.86MB.mp4', '.海绵宝宝第1季 第2集_896x672_H265_22.35_118.96MB.mp4', '.海绵宝宝第1季 第19集_896x680_H265_22.50_122.15MB.mp4', '.海绵宝宝第1季 第18集_896x672_H265_22.41_121.81MB.mp4', '.海绵宝宝第1季 第17集_896x680_H265_22.36_117.48MB.mp4', '.海绵宝宝第1季 第16集_896x680_H265_22.50_122.29MB.mp4', '.海绵宝宝第1季 第13集_896x672_H265_22.34_117.98MB.mp4', '.海绵宝宝第1季 第10集_896x672_H265_22.34_120.03MB.mp4', '.海绵宝宝 第1季 第1集_896x672_H265_22.46_115.51MB.mp4', '.海绵宝宝第1季 第20集_896x672_H265_23.24_125.91MB.mp4', '.海绵宝宝第1季 第14集_896x680_H265_23.04_124.70MB.mp4']
-    name_list = ai_rename(series_names_list)
+    anime = "/115/剧场版物怪第二章：火鼠"
+    name_list = ai_rename_anime_movie(anime)
     logger.info(name_list)
     pass

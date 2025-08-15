@@ -21,6 +21,8 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 # 复制所有项目文件到容器
 COPY . .
 
+RUN sed -i 's/\r$//' /usr/local/run.sh #删除windows换行符
+
 # 暴露应用程序端口
 EXPOSE 5050
 # 设置Shell脚本为可执行
