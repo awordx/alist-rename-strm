@@ -78,6 +78,7 @@ class ALIST():
                                             '.stl',  # Spruce Subtitle File
                                             '.srtv',  # SRT Video Subtitle
                                             '.txtv',  # Text Video Subtitle
+                                            '.sup',  # DVD Subtitle
                                             }
         # self.download_extensions = {}
         pass
