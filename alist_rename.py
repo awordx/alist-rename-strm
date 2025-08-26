@@ -59,6 +59,8 @@ class AlistRename():
         self.offset = 0
         self.debugmodel = False
         self.useai = eval(config['user_config']['is_use_ai'])
+        self.use_ai_title = eval(config['user_config']['use_ai_title'])
+        self.ai_confidence = eval(config['user_config']['ai_confidence'])
         self.source_directory = config['copy_config']['source_directory'].split(',')
         self.target_directory = config['copy_config']['target_directory'].split(',')
         self.auto_copy = eval(config['copy_config']['auto_copy'])
@@ -700,14 +702,34 @@ class AlistRename():
             for index, new_movie_path in enumerate(new_folders_dict['new_movie_folders_with_path']) :
                 if not self.alist.local_is_a_file(new_movie_path):
                     # self.alist.movie_rename(new_movie_path)
-                    if alist_rename.useai:
-                        new_path = ai_rename_anime_movie(new_movie_path)
-                        named_folder = os.path.basename(new_path)
-                        alist_rename.alist.rename_filename(new_movie_path, named_folder)
-                        alist_rename.alist.get_folder_files(os.path.dirname(new_path),refresh=True)
-                        new_movie_path = new_path
-                        new_folders_dict['new_movie_files'][index] = named_folder
-                        new_folders_dict['new_movie_folders_with_path'][index] = new_path
+
+                    if alist_rename.use_ai_title:
+                        try:
+                            new_path, confidence = ai_rename_anime_movie(new_movie_path)
+                            if confidence >= alist_rename.ai_confidence:
+                                named_folder = os.path.basename(new_path)
+                                alist_rename.alist.rename_filename(new_movie_path, named_folder)
+                                alist_rename.alist.get_folder_files(os.path.dirname(new_path), refresh=True)
+                                new_movie_path = new_path
+                                new_folders_dict['new_movie_files'][index] = named_folder
+                                new_folders_dict['new_movie_folders_with_path'][index] = new_path
+                            else:
+                                logger.warning(f"AI置信度 {confidence:.2f} < {alist_rename.ai_confidence}, 跳过命名")
+                        except Exception as e:
+                            logger.error(f"AI命名失败: {e}")
+                    else:
+                        logger.info("未启用 AI 命名标题，保持原始标题")
+
+                    # new_path, confidence = ai_rename_anime_movie(new_movie_path)
+                    # if alist_rename.use_ai_title and confidence > alist_rename.ai_confidence:
+                    #     named_folder = os.path.basename(new_path)
+                    #     alist_rename.alist.rename_filename(new_movie_path, named_folder)
+                    #     alist_rename.alist.get_folder_files(os.path.dirname(new_path),refresh=True)
+                    #     new_movie_path = new_path
+                    #     new_folders_dict['new_movie_files'][index] = named_folder
+                    #     new_folders_dict['new_movie_folders_with_path'][index] = new_path
+                    # else:
+                    #     logger.info(f"置信度小于{alist_rename.ai_confidence} 或者未开启ai对标题命名,不对标题进行命名")
                     arrangement_and_rename_movies(alist_rename, moviepath=new_movie_path)
                 else:
                     create_single_movie_strm(alist_rename,new_movie_path)
@@ -950,14 +972,36 @@ if __name__ == '__main__':
                     # logger.info(f'✨检测到新文件:[{os.path.basename(new_folder)}]，开始重命名')
                     ###检测文件夹是否含有not_check,以及整理文件夹
                     # not_check = folder_arrangement_t(alist_rename,new_folder)
-                    if alist_rename.useai:
-                        new_path = ai_rename_anime_movie(new_folder)
-                        named_folder = os.path.basename(new_path)
-                        alist_rename.alist.rename_filename(new_folder, named_folder)
-                        alist_rename.alist.get_folder_files(os.path.dirname(new_path),refresh=True)
-                        new_folder = new_path
-                        new_folders_dict['new_anime_files'][index2] = named_folder
-                        new_folders_dict['new_anime_folders_with_path'][index2] = new_path
+
+                    if alist_rename.use_ai_title:
+                        try:
+                            new_path, confidence = ai_rename_anime_movie(new_folder)
+                            if confidence >= alist_rename.ai_confidence:
+                                named_folder = os.path.basename(new_path)
+                                alist_rename.alist.rename_filename(new_folder, named_folder)
+                                alist_rename.alist.get_folder_files(os.path.dirname(new_path), refresh=True)
+                                new_folder = new_path
+                                new_folders_dict['new_anime_files'][index2] = named_folder
+                                new_folders_dict['new_anime_folders_with_path'][index2] = new_path
+                            else:
+                                logger.warning(f"AI置信度 {confidence:.2f} < {alist_rename.ai_confidence}, 跳过命名")
+                        except Exception as e:
+                            logger.error(f"AI命名失败: {e}")
+                    else:
+                        logger.info("未启用 AI 命名标题，保持原始标题")
+
+
+                    # if alist_rename.use_ai_title:
+                    #     new_path, confidence = ai_rename_anime_movie(new_folder)
+                    # if alist_rename.use_ai_title and confidence > alist_rename.ai_confidence:
+                    #     named_folder = os.path.basename(new_path)
+                    #     alist_rename.alist.rename_filename(new_folder, named_folder)
+                    #     alist_rename.alist.get_folder_files(os.path.dirname(new_path),refresh=True)
+                    #     new_folder = new_path
+                    #     new_folders_dict['new_anime_files'][index2] = named_folder
+                    #     new_folders_dict['new_anime_folders_with_path'][index2] = new_path
+                    # else:
+                    #     logger.warning(f"置信度小于 {alist_rename.ai_confidence} 或者未开启ai对标题命名,不对标题进行命名")
                     if alist_rename.is_use_asyncio:
                         logger.info(f'🔧使用异步操作进行文件夹整理')
                         not_check = loop.run_until_complete(folder_arrangement(alist_rename, new_folder))
